@@ -1,18 +1,17 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
+import React from 'react';
+import { ThemeProvider as StyledThemeProvider } from 'styled-components/native';
 import * as SplashScreen from 'expo-splash-screen';
-import { useColorScheme } from 'react-native';
-
+import { Slot } from 'expo-router';
+import { theme } from '@/theme';
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
-import AppTabs from '@/components/app-tabs';
 
 SplashScreen.preventAutoHideAsync();
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+export default function RootLayout() {
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <StyledThemeProvider theme={theme}>
       <AnimatedSplashOverlay />
-      <AppTabs />
-    </ThemeProvider>
+      <Slot />
+    </StyledThemeProvider>
   );
 }
