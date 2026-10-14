@@ -5,6 +5,7 @@ import { Contact, Lock, Eye, EyeOff, Headphones } from 'lucide-react-native';
 
 import Input from '@/components/Input';
 import Button from '@/components/Button';
+import { useAuth } from '@/context/AuthContext';
 
 import {
   ScreenContainer,
@@ -38,25 +39,37 @@ type ScreenMode = 'login' | 'forgot_input' | 'forgot_support';
 
 export default function LoginScreen() {
   const theme = useTheme();
+  const { signIn } = useAuth();
 
   const [mode, setMode] = useState<ScreenMode>('login');
-
   const [promoterId, setPromoterId] = useState('');
   const [password, setPassword] = useState('');
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!promoterId.trim() || !password.trim()) {
       Alert.alert('Atenção', 'Por favor, preencha o código do promotor e a senha.');
       return;
     }
 
-    setIsLoading(true);
-    setTimeout(() => {
+    const numericId = Number(promoterId);
+    if (isNaN(numericId)) {
+      Alert.alert('Atenção', 'O código do promotor deve ser um número válido.');
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      await signIn(numericId, password);
+      Alert.alert('Sucesso', 'Login realizado com sucesso!');
+    } catch (error: any) {
+      const errorMessage =
+        error.response?.data || 'Erro ao realizar login. Verifique suas credenciais.';
+      Alert.alert('Falha no Login', typeof errorMessage === 'string' ? errorMessage : 'Credenciais inválidas.');
+    } finally {
       setIsLoading(false);
-      Alert.alert('Sucesso', `Bem-vindo, promotor ${promoterId}!`);
-    }, 1200);
+    }
   };
 
   const handleContinueRecover = () => {
